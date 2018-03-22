@@ -23,9 +23,6 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-     # - run:
-     #     name: Add github.com to ~/.ssh/known_hosts
-     #     command: mkdir ~/.ssh && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - run:
           name: terraform init
           command: terraform init -input=false
@@ -40,7 +37,6 @@ jobs:
 
   apply_infrastructure:
     <<: *terraform
-    working_directory: /tmp/workspace
     steps:
       - attach_workspace:
           at: /tmp/workspace
