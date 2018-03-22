@@ -8,9 +8,9 @@ jobs:
       - run:
           name: Check Terraform Version
           command: terraform -v
-      -run:
+      - run:
           name: Check AWSCLI Version
           command: aws --version
-      -run:
+      - run:
           name: Init terraform
           command: terraform init
