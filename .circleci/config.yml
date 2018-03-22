@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: rsridivya/terraform
+    steps:
+      - checkout
+      - run:
+          name: Check Terraform Version
+          command: terraform -v
