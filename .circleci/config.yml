@@ -8,3 +8,6 @@ jobs:
       - run:
           name: Check Terraform Version
           command: terraform -v
+      -run:
+          name: Check AWSCLI Version
+          command: aws --version
