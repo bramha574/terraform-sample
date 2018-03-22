@@ -1,19 +1,74 @@
 version: 2
+
+# Default configurations
+terraform: &terraform
+  docker:
+    - image: rsridivya/terraform
+  working_directory: /tmp/workspace/terraform/example
+
 jobs:
-  build:
-    docker:
-      - image: rsridivya/terraform
+# Application related jobs are below
+  checkout:
+    <<: *terraform
     steps:
       - checkout
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+# Infrastructure related jobs are below
+
+  plan_infrastructure:
+    <<: *terraform
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
-          name: Check Terraform Version
-          command: terraform -v
+          name: Add github.com to ~/.ssh/known_hosts
+          command: mkdir ~/.ssh && ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
       - run:
-          name: Check AWSCLI Version
-          command: aws --version
+          name: terraform init
+          command: terraform init -input=false
       - run:
-          name: Init terraform
-          command: terraform init
+          name: terraform plan
+          command: terraform plan -input=false -out=tfplan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .terraform # persist this to be able to apply execution plan without running init once more
+            - tfplan
+
+  apply_infrastructure:
+    <<: *terraform
+    working_directory: /tmp/workspace
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
-          name: Terraform Apply
-          command: terraform apply -auto-approve
+          name: terraform apply
+          command: terraform apply -input=false tfplan
+
+master_workflow_filters: &master_workflow_filters
+  filters:
+    branches:
+      only:
+        - master
+
+workflows:
+  version: 2
+  test-build-plan-apply:
+    jobs:
+      - checkout
+      - plan_infrastructure:
+          requires:
+            - checkout
+      - approve_infrastructure:
+          <<: *master_workflow_filters
+          type: approval
+          requires:
+            - plan_infrastructure
+      - apply_infrastructure:
+          <<: *master_workflow_filters
+          requires:
+            - approve_infrastructure
+
