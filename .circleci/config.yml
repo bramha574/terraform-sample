@@ -53,12 +53,10 @@ workflows:
           requires:
             - checkout
       - approve_infrastructure:
-          <<: *master_workflow_filters
           type: approval
           requires:
             - plan_infrastructure
       - apply_infrastructure:
-          <<: *master_workflow_filters
           requires:
             - approve_infrastructure
 
