@@ -44,12 +44,6 @@ jobs:
           name: terraform apply
           command: terraform apply -input=false tfplan
 
-master_workflow_filters: &master_workflow_filters
-  filters:
-    branches:
-      only:
-        - master
-
 workflows:
   version: 2
   test-build-plan-apply:
