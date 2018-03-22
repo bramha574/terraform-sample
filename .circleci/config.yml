@@ -16,4 +16,4 @@ jobs:
           command: terraform init
       - run:
           name: Terraform Apply
-          command: terraform apply
+          command: terraform apply -auto-approve
